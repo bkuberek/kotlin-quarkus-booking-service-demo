@@ -1,11 +1,11 @@
-INSERT INTO restaurant (id, name, created_date)
-VALUES ('635DC3BD-C515-4D41-848B-BC487BB13810', 'Lardo', CURRENT_TIMESTAMP),
-       ('DFE2CAB1-6A39-4426-8937-C1D89403E0F0', 'Panadería Rosetta', CURRENT_TIMESTAMP),
-       ('B1E6728C-DA7C-4841-BBF3-BA7E97F7E07C', 'Tetetlán', CURRENT_TIMESTAMP),
-       ('C52E1D11-757A-48DC-88E8-4BF9866CA53A', 'Falling Piano Brewing Co', CURRENT_TIMESTAMP),
-       ('D42C8608-7D52-4EA3-823F-C59B68A33407', 'u.to.pi.a', CURRENT_TIMESTAMP);
+INSERT INTO restaurant (id, name, created_time)
+VALUES ('635DC3BD-C515-4D41-848B-BC487BB13810', 'Lardo', '2017-03-24T00:00:00.00Z'),
+       ('DFE2CAB1-6A39-4426-8937-C1D89403E0F0', 'Panadería Rosetta', '2007-8-15T00:00:00.00Z'),
+       ('B1E6728C-DA7C-4841-BBF3-BA7E97F7E07C', 'Tetetlán', '2003-11-01T00:00:00.00Z'),
+       ('C52E1D11-757A-48DC-88E8-4BF9866CA53A', 'Falling Piano Brewing Co', '2020-05-14T00:00:00.00Z'),
+       ('D42C8608-7D52-4EA3-823F-C59B68A33407', 'u.to.pi.a', '2022-09-17T00:00:00.00Z');
 
-INSERT INTO restaurant_endorsements (restaurant_id, endorsement)
+INSERT INTO restaurant_endorsement (restaurant_id, endorsement)
 VALUES ('635DC3BD-C515-4D41-848B-BC487BB13810', 'gluten'),
        ('DFE2CAB1-6A39-4426-8937-C1D89403E0F0', 'gluten'),
        ('DFE2CAB1-6A39-4426-8937-C1D89403E0F0', 'vegetarian'),
@@ -14,7 +14,7 @@ VALUES ('635DC3BD-C515-4D41-848B-BC487BB13810', 'gluten'),
        ('D42C8608-7D52-4EA3-823F-C59B68A33407', 'vegan'),
        ('D42C8608-7D52-4EA3-823F-C59B68A33407', 'vegetarian');
 
-INSERT INTO restaurant_tables (restaurant_id, size, quantity)
+INSERT INTO restaurant_table (restaurant_id, size, quantity)
 VALUES ('635DC3BD-C515-4D41-848B-BC487BB13810', 2, 4),
        ('635DC3BD-C515-4D41-848B-BC487BB13810', 4, 2),
        ('635DC3BD-C515-4D41-848B-BC487BB13810', 6, 1),

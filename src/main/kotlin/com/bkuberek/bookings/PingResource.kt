@@ -1,4 +1,4 @@
-package com.nelo.bookings
+package com.bkuberek.bookings
 
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.Path

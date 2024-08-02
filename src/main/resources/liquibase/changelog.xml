@@ -54,4 +54,21 @@
                      stripComments="true"/>
         </rollback>
     </changeSet>
+
+    <changeSet id="004" author="bkuberek">
+        <sqlFile path="changelog/004__add_sample_data.sql"
+                 dbms="postgresql"
+                 encoding="UTF-8"
+                 relativeToChangelogFile="true"
+                 splitStatements="true"
+                 stripComments="true"/>
+        <rollback>
+            <sqlFile path="changelog/004__rollback.sql"
+                     dbms="postgresql"
+                     encoding="UTF-8"
+                     relativeToChangelogFile="true"
+                     splitStatements="true"
+                     stripComments="true"/>
+        </rollback>
+    </changeSet>
 </databaseChangeLog>

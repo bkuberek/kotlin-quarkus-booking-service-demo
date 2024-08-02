@@ -1,4 +1,4 @@
-package com.nelo.bookings.models
+package com.bkuberek.bookings.db
 
 enum class Endorsement {
     gluten,

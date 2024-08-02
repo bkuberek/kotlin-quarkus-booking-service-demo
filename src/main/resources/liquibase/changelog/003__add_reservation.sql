@@ -2,8 +2,9 @@ CREATE TABLE reservation
 (
     id               UUID PRIMARY KEY                  DEFAULT gen_random_uuid(),
     restaurant_id    UUID                     NOT NULL,
-    name             VARCHAR(255)             NOT NULL,
+    name             TEXT                     NOT NULL,
     size             INTEGER                  NOT NULL,
+    restrictions     TEXT                     NULL DEFAULT NULL,
     is_active        BOOLEAN                  NOT NULL DEFAULT TRUE,
     reservation_time TIMESTAMP WITH TIME ZONE NOT NULL,
     created_time     TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,

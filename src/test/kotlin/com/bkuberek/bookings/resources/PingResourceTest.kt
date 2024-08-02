@@ -1,4 +1,4 @@
-package com.nelo.bookings
+package com.bkuberek.bookings.resources
 
 import io.quarkus.test.junit.QuarkusTest
 import io.restassured.RestAssured.given

@@ -1,0 +1,19 @@
+query FindTables(
+  $time: DateTime!,
+  $size: Int!,
+  $restrictions: [Endorsement]!,
+) {
+  restaurants: findTable(
+    time: $time,
+    size: $size,
+    restrictions: $restrictions
+  ) {
+    id
+    name
+    endorsements
+    tables {
+        size
+        quantity
+    }
+  }
+}

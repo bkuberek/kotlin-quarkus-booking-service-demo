@@ -1,0 +1,11 @@
+query AllRestaurants {
+  restaurants: restaurants {
+    id
+    name
+    endorsements
+    tables {
+        size
+        quantity
+    }
+  }
+}

@@ -1,0 +1,16 @@
+mutation BookReservation(
+  $request: ReservationRequestInput!,
+) {
+  reservation: createReservation(
+    reservationRequest: $request
+  ) {
+    id
+    name
+    active
+    size
+    reservationTime
+    restrictions
+    createdTime
+    updatedTime
+  }
+}

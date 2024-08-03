@@ -12,15 +12,22 @@ import org.eclipse.microprofile.graphql.Query
 import java.time.ZonedDateTime
 
 @GraphQLApi
-class RestaurantResource {
-
-    @Inject
-    lateinit var restaurantRepository: RestaurantRepository
-
+class RestaurantResource @Inject constructor(
+    private val restaurantRepository: RestaurantRepository,
+) {
     @Query
     @Description("Get a list of all restaurants")
     fun restaurants(ctx: Context): List<RestaurantInfo> {
         return restaurantRepository.listAll().map { RestaurantInfo(it) }
+    }
+
+    @Query
+    @Description("Get a list of restaurants that have certain endorsements")
+    fun findRestaurantWithEndorsements(
+        ctx: Context,
+        @Named("endorsements") endorsements: List<Endorsement>
+    ): List<RestaurantInfo> {
+        return restaurantRepository.findRestaurantByEndorsement(endorsements).map { RestaurantInfo(it) }
     }
 
     @Query

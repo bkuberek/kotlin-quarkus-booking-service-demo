@@ -12,6 +12,11 @@ class RestaurantRepository : PanacheRepository<RestaurantEntity> {
     fun findByName(name: String): RestaurantEntity? = find("name", name).firstResult()
 
     fun findTable(size: Int, restrictions: List<Endorsement>, time: ZonedDateTime): List<RestaurantEntity> {
-        return listAll()
+        val sql = """SELECT 
+            | r
+            |FROM RestaurantEntity r
+            |
+        """.trimMargin()
+        return entityManager.createQuery(sql, RestaurantEntity::class.java).resultList
     }
 }

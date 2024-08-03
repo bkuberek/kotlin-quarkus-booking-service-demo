@@ -18,7 +18,7 @@ class RestaurantRepository @Inject constructor(
         }
     }
 
-    fun getById(id: String): RestaurantEntity {
+    fun getById(id: String): RestaurantEntity? {
         return jdbi.withExtension<RestaurantEntity, RestaurantDao, Exception>(RestaurantDao::class.java) { dao ->
             dao.getById(id)
         }

@@ -9,7 +9,7 @@ import java.util.*
 
 @Entity
 @Table(name = "restaurant_endorsement")
-class RestaurantEndorsementEntity: PanacheEntityBase() {
+class RestaurantEndorsementEntity : PanacheEntityBase() {
 
     @Id
     @Column(name = "restaurant_id")

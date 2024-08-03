@@ -3,5 +3,6 @@
   <component name="SqlDialectMappings">
     <file url="file://$PROJECT_DIR$/src/main/resources/liquibase/changelog/002__add_restaurant.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/src/main/resources/liquibase/changelog/003__add_reservation.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/liquibase/changelog/004__add_sample_data.sql" dialect="PostgreSQL" />
   </component>
 </project>

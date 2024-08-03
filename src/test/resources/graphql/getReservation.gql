@@ -1,7 +1,5 @@
-mutation BookReservation(
-  $request: ReservationRequestInput!,
-) {
-  reservation: createReservation(reservationRequest: $request) {
+query GetReservation($id: String!) {
+  reservation: reservation(id: $id) {
     id
     name
     size

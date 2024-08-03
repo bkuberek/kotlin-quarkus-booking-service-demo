@@ -5,6 +5,7 @@ Visit the GraphQL UI at http://localhost:8080/q/graphql-ui/
 ## Get a list of all restaurants
 
 Query
+
 ```graphql
 query AllRestaurants {
   restaurants: restaurants {
@@ -12,13 +13,15 @@ query AllRestaurants {
     name
     endorsements
     tables {
-        size
-        quantity
+      size
+      quantity
     }
   }
 }
 ```
+
 Variables
+
 ```json
 {}
 ```
@@ -26,58 +29,70 @@ Variables
 ## Find a Table
 
 Query
+
 ```graphql
 query FindTables(
-  $time: DateTime!, 
-  $size: Int!, 
-  $restrictions: [Endorsement]!, 
+  $time: DateTime!,
+  $size: Int!,
+  $restrictions: [Endorsement]!,
 ) {
   restaurants: findTable(
     time: $time,
-    size: $size, 
+    size: $size,
     restrictions: $restrictions
   ) {
     id
     name
     endorsements
     tables {
-        size
-        quantity
+      size
+      quantity
     }
   }
 }
 ```
+
 Variables
+
 ```json
 {
   "size": 2,
-  "restrictions": [],
+  "restrictions": ["gluten"],
   "time": "2024-08-01T20:00:00.00Z"
 }
 ```
 
 ## Book a new Reservation
 
-Mutation 
+Mutation
+
 ```graphql
 mutation BookReservation(
   $request: ReservationRequestInput!,
 ) {
-  reservation: createReservation(
-    reservationRequest: $request
-  ) {
+  reservation: createReservation(reservationRequest: $request) {
     id
     name
-    active
     size
-    reservationTime
     restrictions
+    restaurant {
+      id
+      name
+    }
+    tables {
+      size
+      quantity
+    }
+    reservationTime
     createdTime
     updatedTime
+    active
   }
 }
 ```
+
 Variables
+
 ```json
 {
   "request": {
@@ -85,31 +100,101 @@ Variables
     "name": "Mike Tyson",
     "size": 3,
     "reservationTime": "2024-08-01T20:00:00.0Z",
-    "restrictions": ["paleo"]
+    "restrictions": [
+      "paleo"
+    ]
   }
+}
+```
+
+## View a Reservation
+
+Mutation
+
+```graphql
+query GetReservation($id: String!) {
+  reservation: reservation(id: $id) {
+    id
+    name
+    size
+    restrictions
+    restaurant {
+      id
+      name
+    }
+    tables {
+      size
+      quantity
+    }
+    reservationTime
+    createdTime
+    updatedTime
+    active
+  }
+}
+```
+
+Variables
+
+```json
+{
+  "id": "ae5a8791-43dc-4fee-a6c5-5d6be12344ed"
+}
+```
+
+## View all Reservations for a user
+
+Mutation
+
+```graphql
+query GetReservations($name: String!) {
+  reservations: reservations(name: $name) {
+    id
+    name
+    size
+    restrictions
+    restaurant {
+      id
+      name
+    }
+    tables {
+      size
+      quantity
+    }
+    reservationTime
+    createdTime
+    updatedTime
+    active
+  }
+}
+```
+
+Variables
+
+```json
+{
+  "name": "Tobias"
 }
 ```
 
 ## Delete a Reservation
 
 Mutation
+
 ```graphql
 mutation DeleteReservation($id: String!) {
   reservation: deleteReservation(id: $id) {
-    id
     name
-    active
     size
     reservationTime
-    restrictions
-    createdTime
-    updatedTime
   }
 }
 ```
+
 Variables
+
 ```json
 {
-  "id": "ENTER ID"
+  "id": "ae5a8791-43dc-4fee-a6c5-5d6be12344ed"
 }
 ```

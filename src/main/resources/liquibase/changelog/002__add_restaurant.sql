@@ -15,7 +15,7 @@ CREATE TABLE restaurant_endorsement
     restaurant_id UUID        NOT NULL,
     endorsement   Endorsement NOT NULL,
     PRIMARY KEY (restaurant_id, endorsement),
-    CONSTRAINT restaurant_endorsement_restaurant_id_fk FOREIGN KEY (restaurant_id) REFERENCES restaurant
+    CONSTRAINT restaurant_endorsement_restaurant_id_fk FOREIGN KEY (restaurant_id) REFERENCES restaurant ON DELETE CASCADE
 );
 
 
@@ -25,6 +25,6 @@ CREATE TABLE restaurant_table
     size          INTEGER NOT NULL,
     quantity      INTEGER NOT NULL,
     PRIMARY KEY (restaurant_id, size),
-    CONSTRAINT restaurant_table_restaurant_id_fk FOREIGN KEY (restaurant_id) REFERENCES restaurant
+    CONSTRAINT restaurant_table_restaurant_id_fk FOREIGN KEY (restaurant_id) REFERENCES restaurant ON DELETE CASCADE
 );
 

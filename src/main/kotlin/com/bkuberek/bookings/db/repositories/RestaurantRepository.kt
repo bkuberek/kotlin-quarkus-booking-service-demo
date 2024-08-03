@@ -1,7 +1,7 @@
 package com.bkuberek.bookings.db.repositories
 
-import com.bkuberek.bookings.db.entities.RestaurantEntity
 import com.bkuberek.bookings.db.Endorsement
+import com.bkuberek.bookings.db.entities.RestaurantEntity
 import io.quarkus.hibernate.orm.panache.PanacheRepository
 import jakarta.enterprise.context.ApplicationScoped
 import java.time.ZonedDateTime

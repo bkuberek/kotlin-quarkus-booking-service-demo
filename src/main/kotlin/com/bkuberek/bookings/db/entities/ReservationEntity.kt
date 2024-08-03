@@ -9,7 +9,6 @@ import java.util.*
 
 @Entity
 @Table(name = "reservation")
-
 @DynamicUpdate
 @DynamicInsert
 class ReservationEntity {
@@ -42,4 +41,13 @@ class ReservationEntity {
 
     @Column(name = "updated_time", nullable = true)
     var updatedTime: ZonedDateTime? = null
+
+    @OneToMany(
+        targetEntity = ReservationTableEntity::class,
+        cascade = [CascadeType.ALL],
+        fetch = FetchType.EAGER,
+        orphanRemoval = true
+    )
+    @JoinColumn(name = "reservation_id", referencedColumnName = "id")
+    var tables: MutableList<ReservationTableEntity> = mutableListOf()
 }

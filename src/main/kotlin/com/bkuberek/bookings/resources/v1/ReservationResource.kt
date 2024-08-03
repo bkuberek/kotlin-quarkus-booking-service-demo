@@ -6,6 +6,7 @@ import com.bkuberek.bookings.resources.v1.models.ReservationRequest
 import com.bkuberek.bookings.resources.v1.models.ReservationResponse
 import io.smallrye.graphql.api.Context
 import jakarta.inject.Inject
+import jakarta.transaction.Transactional
 import jakarta.ws.rs.NotFoundException
 import org.eclipse.microprofile.graphql.*
 
@@ -27,6 +28,7 @@ class ReservationResource {
 
     @Mutation
     @Description("Create a new reservation.")
+    @Transactional
     fun createReservation(
         ctx: Context,
         @Name("reservationRequest") reservationRequest: ReservationRequest
@@ -38,23 +40,19 @@ class ReservationResource {
 
     @Query
     @Description("Get Reservation by ID")
-    fun getReservation(ctx: Context, @Name("id") id: String): ReservationResponse {
-        val it = reservationRepository.findById(id)
-        if (it == null) {
-            throw NotFoundException()
-        } else {
-            return ReservationResponse(it)
-        }
+    fun getReservation(ctx: Context, @Name("id") id: String): ReservationResponse? {
+        return reservationRepository.findById(id)?.let { ReservationResponse(it) }
     }
 
     @Mutation
     @Description("Delete a Reservation by ID")
+    @Transactional
     fun deleteReservation(ctx: Context, @Name("id") id: String): ReservationResponse {
         val reservation = reservationRepository.findById(id)
         if (reservation == null) {
             throw NotFoundException()
         } else {
-            reservationRepository.delete(reservation)
+            reservation.id?.let { reservationRepository.deleteById(it) }
         }
         return ReservationResponse(reservation)
     }

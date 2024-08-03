@@ -10,20 +10,22 @@ data class ReservationResponse(
     val size: Int,
     val isActive: Boolean,
     val restrictions: List<String>,
+    val tables: List<TableInfo>,
     val reservationTime: ZonedDateTime,
     val createdTime: ZonedDateTime,
     val updatedTime: ZonedDateTime?
 ) {
-    constructor(it: ReservationEntity) :
+    constructor(entity: ReservationEntity) :
             this(
-                it.id.toString(),
-                RestaurantInfo(it.restaurant),
-                it.name,
-                it.size,
-                it.isActive,
-                if (it.restrictions != null) it.restrictions!!.split(",") else emptyList(),
-                it.reservationTime,
-                it.createdTime,
-                it.updatedTime
+                entity.id.toString(),
+                RestaurantInfo(entity.restaurant),
+                entity.name,
+                entity.size,
+                entity.isActive,
+                if (entity.restrictions != null) entity.restrictions!!.split(",") else emptyList(),
+                entity.tables.map { TableInfo(it.size, it.quantity) },
+                entity.reservationTime,
+                entity.createdTime,
+                entity.updatedTime,
             )
 }

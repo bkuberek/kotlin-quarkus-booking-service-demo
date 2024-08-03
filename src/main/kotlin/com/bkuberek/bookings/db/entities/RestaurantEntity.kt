@@ -11,6 +11,9 @@ import java.util.*
 @Table(name = "restaurant")
 @DynamicUpdate
 @DynamicInsert
+@NamedQueries(
+    NamedQuery(name = "restaurant.findTable", query = """FROM ReservationEntity r"""),
+)
 class RestaurantEntity {
     @Id
     @Column(name = "id")

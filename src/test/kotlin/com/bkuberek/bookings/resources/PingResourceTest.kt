@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 class PingResourceTest {
 
     @Test
-    fun testHelloEndpoint() {
+    fun testPingEndpoint() {
         given()
             .`when`().get("/ping")
             .then()

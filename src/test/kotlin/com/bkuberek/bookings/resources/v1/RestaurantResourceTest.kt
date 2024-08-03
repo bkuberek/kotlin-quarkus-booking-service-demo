@@ -52,6 +52,10 @@ class RestaurantResourceTest {
             .body("data.restaurants.size()", greaterThan(0))
             .and()
             .body(Matchers.containsString("Lardo"))
+            .and()
+            .body(Matchers.not(Matchers.containsString("Falling Piano Brewing Co")))
+            .and()
+            .body(Matchers.not(Matchers.containsString("u.to.pi.a")))
             .log()
             .all()
     }

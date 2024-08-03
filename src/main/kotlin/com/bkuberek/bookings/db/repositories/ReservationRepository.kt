@@ -9,18 +9,18 @@ import java.util.*
 class ReservationRepository : PanacheRepository<ReservationEntity> {
 
     fun findById(id: UUID): ReservationEntity? {
-        return find("id", id.toString()).firstResult()
-    }
-
-    fun findById(id: String): ReservationEntity? {
         return find("id", id).firstResult()
     }
 
+    fun findById(id: String): ReservationEntity? {
+        return findById(UUID.fromString(id))
+    }
+
     fun deleteById(id: UUID) {
-        delete("id", id.toString())
+        delete("id", id)
     }
 
     fun deleteById(id: String) {
-        delete("id", id)
+        delete("id", UUID.fromString(id))
     }
 }

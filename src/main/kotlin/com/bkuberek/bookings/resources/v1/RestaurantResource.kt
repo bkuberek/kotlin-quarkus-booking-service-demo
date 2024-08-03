@@ -1,7 +1,7 @@
 package com.bkuberek.bookings.resources.v1
 
-import com.bkuberek.bookings.db.repositories.RestaurantRepository
 import com.bkuberek.bookings.db.Endorsement
+import com.bkuberek.bookings.db.repositories.RestaurantRepository
 import com.bkuberek.bookings.resources.v1.models.RestaurantInfo
 import io.smallrye.graphql.api.Context
 import jakarta.inject.Inject

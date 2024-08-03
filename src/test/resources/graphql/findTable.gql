@@ -12,8 +12,8 @@ query FindTables(
     name
     endorsements
     tables {
-        size
-        quantity
+      size
+      quantity
     }
   }
 }

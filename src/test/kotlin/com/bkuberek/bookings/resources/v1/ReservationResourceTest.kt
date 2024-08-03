@@ -90,7 +90,6 @@ class ReservationResourceTest {
     }
 
     @Test
-    @Disabled
     fun testCreateReservation() {
         val query = loadGraphqlQueryAsJson(
             "/graphql/createReservation.gql",

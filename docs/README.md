@@ -1,4 +1,4 @@
-# Bookings Service Demo
+# Booking Service Demo
 
 This project uses Kotlin and Quarkus, the Supersonic Subatomic Framework.
 

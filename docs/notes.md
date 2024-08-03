@@ -153,9 +153,8 @@ If user `A` wants to book at 7pm. At 7pm at the table is available, however,
 there is an existing reservation for a table at 7:15. This would cause a conflict. 
 The existing reservation holder for 7:15 will arrive and potentially not have a table.
 
-#### Proposal
+#### Proposals
 
-Also check 2 hours in the future that the table capacity is still available. 
-Perhaps we could look 1 hour in the future as opposed to 2.
+Also check in the future that the table capacity is still available.
 
 

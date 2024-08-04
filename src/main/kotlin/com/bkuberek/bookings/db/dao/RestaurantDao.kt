@@ -3,16 +3,21 @@ package com.bkuberek.bookings.db.dao
 import com.bkuberek.bookings.db.Endorsement
 import com.bkuberek.bookings.db.entities.RestaurantEndorsementEntity
 import com.bkuberek.bookings.db.entities.RestaurantEntity
+import com.bkuberek.bookings.db.entities.RestaurantTableAvailability
 import com.bkuberek.bookings.db.entities.RestaurantTableEntity
 import org.jdbi.v3.core.result.LinkedHashMapRowReducer
 import org.jdbi.v3.core.result.RowView
+import org.jdbi.v3.sqlobject.config.RegisterBeanMapper
+import org.jdbi.v3.sqlobject.customizer.Bind
 import org.jdbi.v3.sqlobject.customizer.BindList
+import org.jdbi.v3.sqlobject.customizer.DefineNamedBindings
+import org.jdbi.v3.sqlobject.locator.UseClasspathSqlLocator
 import org.jdbi.v3.sqlobject.statement.SqlQuery
 import org.jdbi.v3.sqlobject.statement.UseRowReducer
 import java.time.ZonedDateTime
 import java.util.*
 
-
+@UseClasspathSqlLocator
 interface RestaurantDao {
 
     @SqlQuery(
@@ -35,7 +40,7 @@ interface RestaurantDao {
     @UseRowReducer(RestaurantRowReducer::class)
     fun listAll(): List<RestaurantEntity>
 
-    fun getById(id: String): RestaurantEntity? {
+    fun getById(id: UUID): RestaurantEntity? {
         return getByIds(listOf(id)).firstOrNull()
     }
 
@@ -58,7 +63,7 @@ interface RestaurantDao {
         """
     )
     @UseRowReducer(RestaurantRowReducer::class)
-    fun getByIds(ids: List<String>): List<RestaurantEntity>
+    fun getByIds(@BindList("ids") ids: List<UUID>): List<RestaurantEntity>
 
     @SqlQuery(
         """
@@ -79,31 +84,44 @@ interface RestaurantDao {
         """
     )
     @UseRowReducer(RestaurantRowReducer::class)
-    fun findByName(name: List<String>): List<RestaurantEntity>
+    fun findByName(@BindList("names") names: List<String>): List<RestaurantEntity>
 
     @SqlQuery(
         """
-            SELECT r.* FROM restaurant r 
+            SELECT r.id
+            FROM restaurant r 
             INNER JOIN restaurant_endorsement e ON e.restaurant_id = r.id
             WHERE e.endorsement in (<endorsements>)
         """
     )
-    @UseRowReducer(RestaurantRowReducer::class)
-    fun findRestaurantByEndorsement(@BindList endorsements: List<Endorsement>): List<RestaurantEntity>
+    fun findRestaurantIdsByEndorsement(@BindList("endorsements") endorsements: List<Endorsement>): List<UUID>
 
-    @SqlQuery(
-        """
-            SELECT r.* FROM restaurant r 
-            INNER JOIN restaurant_endorsement e ON e.restaurant_id = r.id
-            WHERE e.endorsement in (<endorsements>)
-        """
-    )
-    @UseRowReducer(RestaurantRowReducer::class)
-    fun findTable(size: Int, restrictions: List<Endorsement>, time: ZonedDateTime): List<RestaurantEntity>
+    fun findRestaurantsByEndorsement(endorsements: List<Endorsement>): List<RestaurantEntity> {
+        return getByIds(findRestaurantIdsByEndorsement(endorsements))
+    }
 
-    /**
-     * Combines multiple rows into an entity and its relationships.
-     */
+    @SqlQuery
+    @DefineNamedBindings
+    @UseRowReducer(RestaurantAvailabilityRowReducer::class)
+    @RegisterBeanMapper(RestaurantTableAvailability::class)
+    fun findRestaurantsWithAvailableTable(
+        @Bind("size") size: Int,
+        @Bind("time_start") timeStart: ZonedDateTime,
+        @Bind("time_stop") timeStop: ZonedDateTime
+    ): List<RestaurantTableAvailability>
+
+    @SqlQuery
+    @DefineNamedBindings
+    //@UseStringTemplateEngine
+    @UseRowReducer(RestaurantAvailabilityRowReducer::class)
+    @RegisterBeanMapper(RestaurantTableAvailability::class)
+    fun findRestaurantsWithAvailableTableAndRestrictions(
+        @Bind("size") size: Int,
+        @BindList("restrictions") restrictions: List<Endorsement>,
+        @Bind("time_start") timeStart: ZonedDateTime,
+        @Bind("time_stop") timeStop: ZonedDateTime
+    ): List<RestaurantTableAvailability>
+
     class RestaurantRowReducer : LinkedHashMapRowReducer<UUID, RestaurantEntity> {
         override fun accumulate(container: MutableMap<UUID, RestaurantEntity>?, rowView: RowView?) {
             if (rowView != null && container != null) {
@@ -119,6 +137,40 @@ interface RestaurantDao {
                 if (rowView.getColumn("e_restaurant_id", UUID::class.java) != null) {
                     restaurant.endorsements.add(rowView.getRow(RestaurantEndorsementEntity::class.java))
                 }
+
+            }
+        }
+
+    }
+
+    class RestaurantAvailabilityRowReducer : LinkedHashMapRowReducer<UUID, RestaurantTableAvailability> {
+        override fun accumulate(container: MutableMap<UUID, RestaurantTableAvailability>?, rowView: RowView?) {
+            if (rowView != null && container != null) {
+
+                val availability = container.computeIfAbsent(
+                    rowView.getColumn("id", UUID::class.java)
+                ) { _ -> rowView.getRow(RestaurantTableAvailability::class.java) }
+
+                // using getColumn with String type because Int::class.java is throwing:
+                //     @todo: java.lang.ClassCastException: Cannot cast java.lang.Integer to int
+
+                val table = RestaurantTableEntity()
+                table.restaurantId = availability.id
+                table.size = rowView.getColumn("size", String::class.java).toInt()
+                table.quantity = rowView.getColumn("total", String::class.java).toInt()
+                availability.tables.add(table)
+
+                val occupiedTable = RestaurantTableEntity()
+                occupiedTable.restaurantId = availability.id
+                occupiedTable.size = rowView.getColumn("size", String::class.java).toInt()
+                occupiedTable.quantity = rowView.getColumn("occupied", String::class.java).toInt()
+                availability.occupiedTables.add(occupiedTable)
+
+                val availableTable = RestaurantTableEntity()
+                availableTable.restaurantId = availability.id
+                availableTable.size = rowView.getColumn("size", String::class.java).toInt()
+                availableTable.quantity = rowView.getColumn("available", String::class.java).toInt()
+                availability.availableTables.add(availableTable)
 
             }
         }

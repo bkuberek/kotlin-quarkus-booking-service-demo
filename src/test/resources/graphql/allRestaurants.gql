@@ -4,8 +4,8 @@ query AllRestaurants {
     name
     endorsements
     tables {
-        size
-        quantity
+      size
+      quantity
     }
   }
 }

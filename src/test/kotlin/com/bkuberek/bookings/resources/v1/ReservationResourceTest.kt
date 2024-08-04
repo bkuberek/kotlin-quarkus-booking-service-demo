@@ -2,14 +2,9 @@ package com.bkuberek.bookings.resources.v1
 
 import com.bkuberek.bookings.resources.TransactionalQuarkusTest
 import com.bkuberek.bookings.resources.loadGraphqlQueryAsJson
-import io.quarkus.test.junit.QuarkusTest
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
 import org.hamcrest.Matchers
-import org.hamcrest.Matchers.greaterThan
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
 @TransactionalQuarkusTest

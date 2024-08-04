@@ -3,7 +3,7 @@ package com.bkuberek.bookings.resources.v1.models
 import com.bkuberek.bookings.db.Endorsement
 import com.bkuberek.bookings.db.entities.RestaurantEntity
 
-data class RestaurantInfo(
+open class RestaurantInfo(
     val id: String,
     val name: String,
     val endorsements: List<Endorsement>,

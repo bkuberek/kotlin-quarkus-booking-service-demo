@@ -3,10 +3,12 @@ package com.bkuberek.bookings.db.repositories
 import com.bkuberek.bookings.db.Endorsement
 import com.bkuberek.bookings.db.dao.RestaurantDao
 import com.bkuberek.bookings.db.entities.RestaurantEntity
+import com.bkuberek.bookings.db.entities.RestaurantTableAvailability
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import org.jdbi.v3.core.Jdbi
 import java.time.ZonedDateTime
+import java.util.*
 
 @ApplicationScoped
 class RestaurantRepository @Inject constructor(
@@ -18,13 +20,13 @@ class RestaurantRepository @Inject constructor(
         }
     }
 
-    fun getById(id: String): RestaurantEntity? {
+    fun getById(id: UUID): RestaurantEntity? {
         return jdbi.withExtension<RestaurantEntity, RestaurantDao, Exception>(RestaurantDao::class.java) { dao ->
             dao.getById(id)
         }
     }
 
-    fun getByIds(ids: List<String>): List<RestaurantEntity> {
+    fun getByIds(ids: List<UUID>): List<RestaurantEntity> {
         return jdbi.withExtension<List<RestaurantEntity>, RestaurantDao, Exception>(RestaurantDao::class.java) { dao ->
             dao.getByIds(ids)
         }
@@ -36,15 +38,30 @@ class RestaurantRepository @Inject constructor(
         }
     }
 
-    fun findRestaurantByEndorsement(endorsements: List<Endorsement>): List<RestaurantEntity> {
+    fun findRestaurantsByEndorsement(endorsements: List<Endorsement>): List<RestaurantEntity> {
         return jdbi.withExtension<List<RestaurantEntity>, RestaurantDao, Exception>(RestaurantDao::class.java) { dao ->
-            dao.findRestaurantByEndorsement(endorsements)
+            dao.findRestaurantsByEndorsement(endorsements)
         }
     }
 
-    fun findTable(size: Int, restrictions: List<Endorsement>, time: ZonedDateTime): List<RestaurantEntity> {
-        return jdbi.withExtension<List<RestaurantEntity>, RestaurantDao, Exception>(RestaurantDao::class.java) { dao ->
-            dao.findTable(size, restrictions, time)
+    fun findRestaurantsWithAvailableTable(
+        size: Int,
+        timeStart: ZonedDateTime,
+        timeStop: ZonedDateTime
+    ): List<RestaurantTableAvailability> {
+        return jdbi.withExtension<List<RestaurantTableAvailability>, RestaurantDao, Exception>(RestaurantDao::class.java) { dao ->
+            dao.findRestaurantsWithAvailableTable(size, timeStart, timeStop)
+        }
+    }
+
+    fun findRestaurantsWithAvailableTableAndRestrictions(
+        size: Int,
+        restrictions: Set<Endorsement>,
+        timeStart: ZonedDateTime,
+        timeStop: ZonedDateTime
+    ): List<RestaurantTableAvailability> {
+        return jdbi.withExtension<List<RestaurantTableAvailability>, RestaurantDao, Exception>(RestaurantDao::class.java) { dao ->
+            dao.findRestaurantsWithAvailableTableAndRestrictions(size, ArrayList(restrictions), timeStart, timeStop)
         }
     }
 }

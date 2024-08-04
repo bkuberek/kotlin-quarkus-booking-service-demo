@@ -60,6 +60,13 @@ User's name and Restrictions are provided during booking of tables.
 
 ## SQL
 
+Some of the SQL is inline in the DAO and some are included from the resources folder.
+In some cases, the SQL is templated using [stringtemplate4](https://github.com/antlr/stringtemplate4/blob/master/doc/templates.md).
+[Cheatsheet](https://github.com/antlr/stringtemplate4/blob/master/doc/cheatsheet.md).
+
+Originally, this project began using Hibernate ORM and Panache. However, that made it nearly impossible to write custom sql queries.
+The switch to [Quarkus-Jdbi](https://github.com/quarkiverse/quarkus-jdbi) made all the difference in completing this project.
+
 ### Total Restaurant Capacity
 
 In the following query `size` is the type of table and `capacity` is the number of tables of that type.
@@ -242,8 +249,8 @@ WITH venue AS (SELECT r.id,
                 FROM reservation AS b
                          INNER JOIN restaurant AS r ON b.restaurant_id = r.id
                          INNER JOIN reservation_table AS bt ON bt.reservation_id = b.id
-                WHERE b.reservation_time > '2024-08-04 19:00:00.000000 +00:00'
-                  AND b.reservation_time <= '2024-08-04 21:00:00.000000 +00:00'
+                WHERE b.reservation_time >= '2024-08-04 19:00:00.000000 +00:00'
+                  AND b.reservation_time < '2024-08-04 21:00:00.000000 +00:00'
                 GROUP BY 1, 2)
 
 SELECT venue.id,

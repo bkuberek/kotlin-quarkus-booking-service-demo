@@ -62,7 +62,8 @@ In some cases, the SQL is templated using [stringtemplate4](https://github.com/a
 [Cheatsheet](https://github.com/antlr/stringtemplate4/blob/master/doc/cheatsheet.md).
 
 Originally, this project began using Hibernate ORM and Panache. However, that made it nearly impossible to write custom sql queries.
-The switch to [Quarkus-Jdbi](https://github.com/quarkiverse/quarkus-jdbi) made all the difference in completing this project.
+[The switch](https://github.com/bkuberek/kotlin-quarkus-booking-service-demo/pull/1) to [Quarkus-Jdbi](https://github.com/quarkiverse/quarkus-jdbi) made all the difference in completing this project.
+
 
 ### Total Restaurant Capacity
 

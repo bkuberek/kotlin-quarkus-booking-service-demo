@@ -1,5 +1,5 @@
 query AllRestaurants {
-  restaurants: restaurants {
+  restaurants: allRestaurants {
     id
     name
     endorsements

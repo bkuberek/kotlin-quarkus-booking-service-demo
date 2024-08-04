@@ -8,15 +8,20 @@ import io.restassured.http.ContentType
 import org.hamcrest.Matchers
 import org.hamcrest.Matchers.greaterThan
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
+import java.time.ZoneId
 
 @QuarkusTest
 class RestaurantResourceTest {
+
+    // The Sample Data migration uses current date + interval to create reservations tomorrow
+    private val tomorrow: LocalDate = LocalDate.now().plusDays(1)
 
     @Test
     fun testGetAllRestaurants() {
         val query = loadGraphqlQueryAsJson("/graphql/allRestaurants.gql");
 
-        given()
+        val response = given()
             .accept(ContentType.JSON)
             .contentType(ContentType.JSON)
             .body(query)
@@ -29,6 +34,7 @@ class RestaurantResourceTest {
             .body(Matchers.containsString("Lardo"))
             .log()
             .all()
+            .extract()
     }
 
     @Test
@@ -40,7 +46,7 @@ class RestaurantResourceTest {
             )
         );
 
-        given()
+        val response = given()
             .accept(ContentType.JSON)
             .contentType(ContentType.JSON)
             .body(query)
@@ -48,11 +54,12 @@ class RestaurantResourceTest {
             .post("/graphql")
             .then()
             .statusCode(200)
-            .body("data.restaurants.size()", Matchers.equalTo(1))
+            .body("data.restaurant", Matchers.notNullValue())
             .and()
             .body(Matchers.containsString("Tetetlán"))
             .log()
             .all()
+            .extract()
     }
 
     @Test
@@ -69,7 +76,7 @@ class RestaurantResourceTest {
             )
         );
 
-        given()
+        val response = given()
             .accept(ContentType.JSON)
             .contentType(ContentType.JSON)
             .body(query)
@@ -84,6 +91,7 @@ class RestaurantResourceTest {
             .body(Matchers.containsString("Panadería Rosetta"))
             .log()
             .all()
+            .extract()
     }
 
     @Test
@@ -100,7 +108,7 @@ class RestaurantResourceTest {
             )
         );
 
-        given()
+        val response = given()
             .accept(ContentType.JSON)
             .contentType(ContentType.JSON)
             .body(query)
@@ -115,6 +123,7 @@ class RestaurantResourceTest {
             .body(Matchers.containsString("Panadería Rosetta"))
             .log()
             .all()
+            .extract()
     }
 
     @Test
@@ -130,7 +139,7 @@ class RestaurantResourceTest {
             )
         );
 
-        given()
+        val response = given()
             .accept(ContentType.JSON)
             .contentType(ContentType.JSON)
             .body(query)
@@ -147,20 +156,21 @@ class RestaurantResourceTest {
             .body(Matchers.containsString("Panadería Rosetta"))
             .log()
             .all()
+            .extract()
     }
 
     @Test
-    fun testFindTable() {
+    fun testFindTableNoRestrictions() {
         val query = loadGraphqlQueryAsJson(
             "/graphql/findTable.gql",
             mapOf(
                 Pair("size", 2),
-                Pair("restrictions", listOf("gluten")),
-                Pair("time", "2024-08-04T20:00:00.00Z")
+                Pair("endorsements", emptyList<Endorsement>()),
+                Pair("time", tomorrow.atTime(20, 0, 0, 0).atZone(ZoneId.systemDefault()))
             )
         )
 
-        given()
+        val response = given()
             .accept(ContentType.JSON)
             .contentType(ContentType.JSON)
             .body(query)
@@ -168,14 +178,78 @@ class RestaurantResourceTest {
             .post("/graphql")
             .then()
             .statusCode(200)
-            .body("data.restaurants.size()", greaterThan(0))
+            .body("data.restaurants.size()", Matchers.equalTo(5))
             .and()
             .body(Matchers.containsString("Lardo"))
             .and()
-            .body(Matchers.not(Matchers.containsString("Falling Piano Brewing Co")))
+            .body(Matchers.containsString("Falling Piano Brewing Co"))
             .and()
-            .body(Matchers.not(Matchers.containsString("u.to.pi.a")))
+            .body(Matchers.containsString("u.to.pi.a"))
             .log()
             .all()
+            .extract()
+    }
+
+    @Test
+    fun testFindTableOneRestriction() {
+        val query = loadGraphqlQueryAsJson(
+            "/graphql/findTable.gql",
+            mapOf(
+                Pair("size", 2),
+                Pair("endorsements", listOf(Endorsement.gluten)),
+                Pair("time", tomorrow.atTime(20, 0, 0, 0).atZone(ZoneId.systemDefault()))
+            )
+        )
+        val response = given()
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+            .body(query)
+            .`when`()
+            .post("/graphql")
+            .then()
+            .statusCode(200)
+            .body("data.restaurants.size()", Matchers.equalTo(3))
+            .and()
+            .body(Matchers.containsString("Lardo"))
+            .and()
+            .body(Matchers.containsString("Panadería Rosetta"))
+            .and()
+            .body(Matchers.containsString("Tetetlán"))
+            .and()
+            .body(Matchers.not(Matchers.containsString("u.t.o.p.i.a")))
+            .log()
+            .all()
+            .extract()
+    }
+
+    @Test
+    fun testFindTableMultipleRestrictions() {
+        val query = loadGraphqlQueryAsJson(
+            "/graphql/findTable.gql",
+            mapOf(
+                Pair("size", 2),
+                Pair("endorsements", listOf(Endorsement.vegan, Endorsement.vegetarian)),
+                Pair("time", tomorrow.atTime(20, 0, 0, 0).atZone(ZoneId.systemDefault()))
+            )
+        )
+
+        val response = given()
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+            .body(query)
+            .`when`()
+            .post("/graphql")
+            .then()
+            .statusCode(200)
+            .body("data.restaurants.size()", Matchers.equalTo(2))
+            .and()
+            .body(Matchers.containsString("Panadería Rosetta"))
+            .and()
+            .body(Matchers.containsString("u.to.pi.a"))
+            .and()
+            .body(Matchers.not(Matchers.containsString("Tetetlán")))
+            .log()
+            .all()
+            .extract()
     }
 }

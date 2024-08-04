@@ -17,7 +17,6 @@ import org.jdbi.v3.sqlobject.statement.UseRowReducer
 import java.time.ZonedDateTime
 import java.util.*
 
-@UseClasspathSqlLocator
 interface RestaurantDao {
 
     @SqlQuery(
@@ -101,6 +100,7 @@ interface RestaurantDao {
     }
 
     @SqlQuery
+    @UseClasspathSqlLocator
     @DefineNamedBindings
     @UseRowReducer(RestaurantAvailabilityRowReducer::class)
     @RegisterBeanMapper(RestaurantTableAvailability::class)
@@ -111,8 +111,8 @@ interface RestaurantDao {
     ): List<RestaurantTableAvailability>
 
     @SqlQuery
+    @UseClasspathSqlLocator
     @DefineNamedBindings
-    //@UseStringTemplateEngine
     @UseRowReducer(RestaurantAvailabilityRowReducer::class)
     @RegisterBeanMapper(RestaurantTableAvailability::class)
     fun findRestaurantsWithAvailableTableAndRestrictions(

@@ -1,7 +1,7 @@
 query FindRestaurantsWithEndorsements(
   $endorsements: [Endorsement!]!,
 ) {
-  restaurants: findRestaurantWithEndorsements(
+  restaurants: findRestaurantsWithEndorsements(
     endorsements: $endorsements
   ) {
     id

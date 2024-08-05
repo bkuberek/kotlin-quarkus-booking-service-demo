@@ -1,6 +1,12 @@
 # Bookings API
 
-Visit the GraphQL UI at http://localhost:8080/q/graphql-ui/
+Visit the GraphQL UI at http://localhost:8080/q/graphql-ui/. 
+You can access the complete API documentation there. 
+
+Below are some examples. You can also see more examples in 
+
+- [src/test/kotlin/com/bkuberek/bookings/graphql/v1](https://github.com/bkuberek/kotlin-quarkus-booking-service-demo/tree/main/src/test/kotlin/com/bkuberek/bookings/graphql/v1)
+- [src/test/resources/graphql](https://github.com/bkuberek/kotlin-quarkus-booking-service-demo/tree/main/src/test/resources/graphql)
 
 ## Get a list of all restaurants
 
@@ -8,7 +14,7 @@ Query
 
 ```graphql
 query AllRestaurants {
-  restaurants: restaurants {
+  restaurants: allRestaurants {
     id
     name
     endorsements
@@ -18,6 +24,7 @@ query AllRestaurants {
     }
   }
 }
+
 ```
 
 Variables
@@ -31,20 +38,29 @@ Variables
 Query
 
 ```graphql
-query FindTables(
+query FindTable(
   $time: DateTime!,
   $size: Int!,
-  $restrictions: [Endorsement]!,
+  $endorsements: [Endorsement]!,
 ) {
   restaurants: findTable(
     time: $time,
     size: $size,
-    restrictions: $restrictions
+    endorsements: $endorsements
   ) {
     id
     name
+    size
     endorsements
     tables {
+      size
+      quantity
+    }
+    occupiedTables {
+      size
+      quantity
+    }
+    availableTables {
       size
       quantity
     }
@@ -57,7 +73,7 @@ Variables
 ```json
 {
   "size": 2,
-  "restrictions": ["gluten"],
+  "endorsements": ["gluten"],
   "time": "2024-08-01T20:00:00.00Z"
 }
 ```
@@ -180,6 +196,7 @@ Variables
   "name": "Tobias"
 }
 ```
+Optional parameter: `restaurantId: UUID`, return reservations for a single restaurant.
 
 ## Delete a Reservation
 
@@ -188,9 +205,15 @@ Mutation
 ```graphql
 mutation DeleteReservation($id: String!) {
   reservation: deleteReservation(id: $id) {
-    name
-    size
-    reservationTime
+    ... on ReservationInfo {
+      name
+      size
+      reservationTime
+    }
+    ... on ReservationError {
+      error
+      message
+    }
   }
 }
 ```

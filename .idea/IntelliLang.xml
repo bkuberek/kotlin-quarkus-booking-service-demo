@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="LanguageInjectionConfiguration">
+    <injection language="SQL" injector-id="java">
+      <display-name>JDBI (org.jdbi.v3.core)</display-name>
+      <ignore-pattern>&lt;\w+&gt;</ignore-pattern>
+      <single-file value="true" />
+      <place><![CDATA[psiParameter().ofMethod(0, psiMethod().withName("add").withParameters("java.lang.String").definedInClass("org.jdbi.v3.core.statement.Batch"))]]></place>
+      <place><![CDATA[psiParameter().ofMethod(0, psiMethod().withName("prepareBatch", "createQuery", "createCall", "createScript", "createUpdate").withParameters("java.lang.String").definedInClass("org.jdbi.v3.core.Handle"))]]></place>
+      <place><![CDATA[psiParameter().ofMethod(0, psiMethod().withName("select", "execute").withParameterCount(2).definedInClass("org.jdbi.v3.core.Handle"))]]></place>
+    </injection>
+  </component>
+</project>

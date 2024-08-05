@@ -1,11 +1,11 @@
 query AllRestaurants {
-  restaurants: restaurants {
+  restaurants: allRestaurants {
     id
     name
     endorsements
     tables {
-        size
-        quantity
+      size
+      quantity
     }
   }
 }

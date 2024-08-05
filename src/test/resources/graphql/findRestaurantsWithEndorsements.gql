@@ -1,0 +1,15 @@
+query FindRestaurantsWithEndorsements(
+  $endorsements: [Endorsement!]!,
+) {
+  restaurants: findRestaurantsWithEndorsements(
+    endorsements: $endorsements
+  ) {
+    id
+    name
+    endorsements
+    tables {
+      size
+      quantity
+    }
+  }
+}

@@ -1,0 +1,15 @@
+query GetRestaurantsByName(
+  $names: [String!]!,
+) {
+  restaurants: restaurantsByName(
+    names: $names
+  ) {
+    id
+    name
+    endorsements
+    tables {
+      size
+      quantity
+    }
+  }
+}

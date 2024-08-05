@@ -67,26 +67,30 @@ Variables
 Mutation
 
 ```graphql
-mutation BookReservation(
-  $request: ReservationRequestInput!,
-) {
+mutation CreateReservation($request: ReservationRequestInput!) {
   reservation: createReservation(reservationRequest: $request) {
-    id
-    name
-    size
-    restrictions
-    restaurant {
+    ... on ReservationInfo {
       id
       name
-    }
-    tables {
       size
-      quantity
+      restrictions
+      restaurant {
+        id
+        name
+      }
+      tables {
+        size
+        quantity
+      }
+      reservationTime
+      createdTime
+      updatedTime
+      active
     }
-    reservationTime
-    createdTime
-    updatedTime
-    active
+    ... on ReservationError {
+      error
+      message
+    }
   }
 }
 ```
@@ -198,3 +202,9 @@ Variables
   "id": "ae5a8791-43dc-4fee-a6c5-5d6be12344ed"
 }
 ```
+
+
+---
+
+[<- Previous (Running the Application)](./running.md)
+| [Next (Notes) ->](./notes.md)

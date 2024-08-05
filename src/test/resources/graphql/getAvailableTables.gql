@@ -1,0 +1,27 @@
+query GetAvailableTables(
+  $restaurantId: String!,
+  $time: DateTime!,
+  $size: Int = 1
+) {
+  restaurant: availableTables(
+    restaurantId: $restaurantId,
+    time: $time,
+    size: $size
+  ) {
+    id
+    name
+    endorsements
+    tables {
+      size
+      quantity
+    }
+    occupiedTables {
+      size
+      quantity
+    }
+    availableTables {
+      size
+      quantity
+    }
+  }
+}

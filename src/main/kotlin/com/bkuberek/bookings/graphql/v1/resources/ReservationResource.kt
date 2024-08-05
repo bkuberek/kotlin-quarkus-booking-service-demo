@@ -8,11 +8,11 @@ import com.bkuberek.bookings.graphql.v1.models.*
 import io.smallrye.graphql.api.Context
 import jakarta.inject.Inject
 import jakarta.inject.Named
-import jakarta.transaction.Transactional
 import org.eclipse.microprofile.graphql.Description
 import org.eclipse.microprofile.graphql.GraphQLApi
 import org.eclipse.microprofile.graphql.Mutation
 import org.eclipse.microprofile.graphql.Query
+import org.jboss.logging.Logger
 import java.util.*
 
 @GraphQLApi
@@ -22,6 +22,7 @@ class ReservationResource @Inject constructor(
     private val reservationValidator: ReservationValidator,
     private val reservationTableDelegator: ReservationTableDelegator,
 ) {
+    private val logger = Logger.getLogger(ReservationResource::class.java)
 
     @Query
     @Description("Get Reservation by ID")
@@ -45,7 +46,6 @@ class ReservationResource @Inject constructor(
 
     @Mutation
     @Description("Create a new reservation.")
-    @Transactional
     fun createReservation(
         ctx: Context,
         @Named("reservationRequest") reservationRequest: ReservationRequest
@@ -85,17 +85,16 @@ class ReservationResource @Inject constructor(
         }
 
         return try {
-            ReservationInfo(
-                reservationRepository.createReservation(
-                    reservationTableDelegator.assignTables(restaurant, available.availableTables, reservationRequest)
-                )
-            )
+            val entity =
+                reservationTableDelegator.assignTables(restaurant, available.availableTables, reservationRequest)
+            ReservationInfo(reservationRepository.createReservation(entity))
         } catch (e: IllegalArgumentException) {
             ReservationError(
                 ApiError.UNAVAILABLE,
                 "The restaurant does not have available capacity for party size at requested time. (${e.message})"
             )
         } catch (e: Exception) {
+            logger.error("Unhandled Exception", e)
             ReservationError(
                 ApiError.INTERNAL,
                 "Internal Server Error"
@@ -105,7 +104,6 @@ class ReservationResource @Inject constructor(
 
     @Mutation
     @Description("Delete a Reservation by ID")
-    @Transactional
     fun deleteReservation(ctx: Context, @Named("id") id: UUID): ReservationResponse {
         val reservation = reservationRepository.getById(id)
         if (reservation != null) {

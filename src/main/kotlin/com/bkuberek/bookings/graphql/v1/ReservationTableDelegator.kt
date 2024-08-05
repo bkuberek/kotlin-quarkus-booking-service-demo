@@ -30,6 +30,7 @@ class ReservationTableDelegator {
         reservation.name = reservationRequest.name
         reservation.size = reservationRequest.size
         reservation.reservationTime = reservationRequest.reservationTime
+        reservationRequest.restrictions.forEach { reservation.restrictions.add(it) }
 
         var standing = reservationRequest.size
         var maxSeats = 0

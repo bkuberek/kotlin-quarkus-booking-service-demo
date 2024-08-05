@@ -1,7 +1,13 @@
 mutation DeleteReservation($id: String!) {
   reservation: deleteReservation(id: $id) {
-    name
-    size
-    reservationTime
+    ... on ReservationInfo {
+      name
+      size
+      reservationTime
+    }
+    ... on ReservationError {
+      error
+      message
+    }
   }
 }

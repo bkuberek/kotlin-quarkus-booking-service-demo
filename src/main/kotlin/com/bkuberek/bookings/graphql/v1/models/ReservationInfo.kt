@@ -13,7 +13,7 @@ data class ReservationInfo(
     val restrictions: Set<Endorsement>,
     val tables: Set<TableInfo>,
     val reservationTime: ZonedDateTime,
-    val createdTime: ZonedDateTime,
+    val createdTime: ZonedDateTime?,
     val updatedTime: ZonedDateTime?
 ) : ReservationResponse {
     constructor(entity: ReservationEntity) :

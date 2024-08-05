@@ -116,11 +116,15 @@ class ReservationResourceTest {
         val query = loadGraphqlQueryAsJson(
             "/graphql/createReservation.gql",
             mapOf(
-                Pair("restaurantId", "b1e6728c-da7c-4841-bbf3-ba7e97f7e07c"),
-                Pair("name", "Mike Tyson"),
-                Pair("reservationTime", "2024-08-01T20:00:00.00Z"),
-                Pair("size", 3),
-                Pair("restrictions", listOf("paleo"))
+                Pair(
+                    "request", mapOf(
+                        Pair("restaurantId", "b1e6728c-da7c-4841-bbf3-ba7e97f7e07c"),
+                        Pair("name", "Mike Tyson"),
+                        Pair("reservationTime", "2024-08-01T20:00:00.00Z"),
+                        Pair("size", 3),
+                        Pair("restrictions", listOf("paleo"))
+                    )
+                )
             )
         )
 

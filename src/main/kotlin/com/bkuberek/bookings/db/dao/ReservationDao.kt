@@ -8,7 +8,6 @@ import org.jdbi.v3.core.result.RowView
 import org.jdbi.v3.sqlobject.customizer.Bind
 import org.jdbi.v3.sqlobject.customizer.BindBean
 import org.jdbi.v3.sqlobject.customizer.BindList
-import org.jdbi.v3.sqlobject.statement.SqlBatch
 import org.jdbi.v3.sqlobject.statement.SqlQuery
 import org.jdbi.v3.sqlobject.statement.SqlUpdate
 import org.jdbi.v3.sqlobject.statement.UseRowReducer
@@ -83,53 +82,52 @@ interface ReservationDao {
 
     @SqlQuery(
         """
-            SELECT r.id             as r_id,
-                   r.name           as r_name,
-                   r.created_time   as r_created_time,
-                   r.updated_time   as r_updated_time,
-                   re.restaurant_id as e_restaurant_id,
-                   re.endorsement   as e_endorsement,
-                   rt.restaurant_id as t_restaurant_id,
-                   rt.size          as t_size,
-                   rt.quantity      as t_quantity
-            FROM restaurant AS r
-                     LEFT JOIN restaurant_endorsement AS re ON re.restaurant_id = r.id
-                     LEFT JOIN restaurant_table AS rt ON rt.restaurant_id = r.id
-            WHERE r.id in (<ids>)
-            ORDER BY r_name, t_size;
+            SELECT bb.id               as b_id,
+                   bb.restaurant_id    as b_restaurant_id,
+                   bb.name             as b_name,
+                   bb.size             as b_size,
+                   bb.is_active        as b_is_active,
+                   bb.reservation_time as b_reservation_time,
+                   bb.created_time     as b_created_time,
+                   bb.updated_time     as b_updated_time,
+                   bb.restrictions     as b_restrictions,
+                   rr.id               as r_id,
+                   rr.name             as r_name,
+                   rr.created_time     as r_created_time,
+                   rr.updated_time     as r_updated_time,
+                   bt.reservation_id   as bt_reservation_id,
+                   bt.size             as bt_size,
+                   bt.quantity         as bt_quantity
+            FROM reservation AS bb
+                     INNER JOIN restaurant AS rr ON rr.id = bb.restaurant_id
+                     INNER JOIN reservation_table AS bt ON bt.reservation_id = bb.id
+            WHERE bb.id IN (<ids>)
+            ORDER BY 3, 4;
         """
     )
     @UseRowReducer(ReservationRowReducer::class)
     fun getByIds(@BindList("ids") ids: Set<UUID>): Set<ReservationEntity>
 
-    @SqlBatch(
+    @SqlUpdate(
         """
             INSERT INTO reservation (id, restaurant_id, name, size, restrictions, reservation_time)
-            VALUES (:id, :restaurant_id, :name, :size, :restrictions, :reservationTime)
+            VALUES (:b.id, :b.restaurant.id, :b.name, :b.size, array_to_string(:b.restrictions, ','), :b.reservationTime)
         """
     )
-    fun saveReservations(@BindBean entity: Collection<ReservationEntity>)
+    fun saveReservation(@BindBean("b") entity: ReservationEntity)
 
-    fun saveReservation(@BindBean entity: ReservationEntity) {
-        return saveReservations(setOf(entity))
-    }
-
-    @SqlBatch(
+    @SqlUpdate(
         """
             INSERT INTO reservation_table (reservation_id, size, quantity)
-            VALUES (:reservation_id, :size, :quantity)
+            VALUES (:t.reservationId, :t.size, :t.quantity)
         """
     )
-    fun saveReservationTables(@BindBean entity: Collection<ReservationTableEntity>)
-
-    fun saveReservationTable(@BindBean entity: ReservationTableEntity) {
-        saveReservationTables(setOf(entity))
-    }
+    fun saveReservationTable(@BindBean("t") entity: ReservationTableEntity)
 
     @Transaction
     fun createReservation(reservationEntity: ReservationEntity) {
         saveReservation(reservationEntity)
-        saveReservationTables(reservationEntity.tables)
+        reservationEntity.tables.forEach { saveReservationTable(it) }
     }
 
     fun deleteById(id: UUID) {

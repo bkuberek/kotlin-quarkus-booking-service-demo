@@ -13,7 +13,7 @@ class ReservationEntity {
     var size: Int = 1
     var isActive: Boolean = true
     lateinit var reservationTime: ZonedDateTime
-    lateinit var createdTime: ZonedDateTime
+    var createdTime: ZonedDateTime? = null
     var updatedTime: ZonedDateTime? = null
     var tables: MutableList<ReservationTableEntity> = mutableListOf()
 

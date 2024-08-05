@@ -227,7 +227,7 @@ We are looking for how many reservations will begin or end during the 2 hours of
 These are tables that are still in use. We can use this number to subtract from the total number of tables and we get
 availability.
 
-List of restaurant IDs and their current booked capacity between (TIME - 2 hours) and TIME.
+List of restaurant IDs and their current booked capacity between TIME and TIME + 2 hours.
 
 ```postgresql
 SELECT b.restaurant_id,

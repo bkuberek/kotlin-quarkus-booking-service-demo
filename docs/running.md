@@ -10,6 +10,8 @@ The application includes a few tests. You can run those with `test` or `verify`.
 ./mvnw verify
 ```
 
+> **_Note:_** The tests currently share the database with quarkus dev and any changes of the data in dev might affect the result of tests. Make sure to tun the tests on a fresh database.
+
 ## Running the Application
 
 The following guide shows you the different options for running the application. 

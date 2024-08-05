@@ -1,4 +1,4 @@
-package com.bkuberek.bookings.resources.v1.models
+package com.bkuberek.bookings.graphql.v1.models
 
 data class TableInfo(
     val size: Int,

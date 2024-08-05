@@ -1,5 +1,7 @@
 package com.bkuberek.bookings.db.repositories
 
+import com.bkuberek.bookings.RESERVATION_DURATION_MINUTES
+import com.bkuberek.bookings.RESERVATION_DURATION_SQL_INTERVAL
 import com.bkuberek.bookings.db.Endorsement
 import com.bkuberek.bookings.db.dao.RestaurantDao
 import com.bkuberek.bookings.db.entities.RestaurantEntity
@@ -44,24 +46,49 @@ class RestaurantRepository @Inject constructor(
         }
     }
 
+    fun getAvailableTables(
+        restaurantId: UUID,
+        time: ZonedDateTime,
+        size: Int?
+    ): RestaurantTableAvailability? {
+        return jdbi.withExtension<RestaurantTableAvailability?, RestaurantDao, Exception>(RestaurantDao::class.java) { dao ->
+            dao.getAvailableTables(
+                restaurantId,
+                size ?: 1,
+                time,
+                time.plusMinutes(RESERVATION_DURATION_MINUTES),
+                RESERVATION_DURATION_SQL_INTERVAL
+            ).firstOrNull()
+        }
+    }
+
     fun findRestaurantsWithAvailableTable(
         size: Int,
-        timeStart: ZonedDateTime,
-        timeStop: ZonedDateTime
+        time: ZonedDateTime
     ): List<RestaurantTableAvailability> {
         return jdbi.withExtension<List<RestaurantTableAvailability>, RestaurantDao, Exception>(RestaurantDao::class.java) { dao ->
-            dao.findRestaurantsWithAvailableTable(size, timeStart, timeStop)
+            dao.findRestaurantsWithAvailableTable(
+                size,
+                time,
+                time.plusMinutes(RESERVATION_DURATION_MINUTES),
+                RESERVATION_DURATION_SQL_INTERVAL
+            )
         }
     }
 
     fun findRestaurantsWithAvailableTableAndRestrictions(
         size: Int,
         restrictions: Set<Endorsement>,
-        timeStart: ZonedDateTime,
-        timeStop: ZonedDateTime
+        time: ZonedDateTime
     ): List<RestaurantTableAvailability> {
         return jdbi.withExtension<List<RestaurantTableAvailability>, RestaurantDao, Exception>(RestaurantDao::class.java) { dao ->
-            dao.findRestaurantsWithAvailableTableAndRestrictions(size, ArrayList(restrictions), timeStart, timeStop)
+            dao.findRestaurantsWithAvailableTableAndRestrictions(
+                size,
+                ArrayList(restrictions),
+                time,
+                time.plusMinutes(RESERVATION_DURATION_MINUTES),
+                RESERVATION_DURATION_SQL_INTERVAL
+            )
         }
     }
 }

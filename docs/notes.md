@@ -43,6 +43,8 @@ This was my process during this exercise.
 - **The main challenge** was trying to do custom SQL with Hibernate and Panache. I have come to the conclusion it
   was a waste of time. I switched to Jdbi, rewriting the data access layer.
 
+- While writing the logic for table assignment, Intellij crashed and I lost a lot of unsaved work. ಥ_ಥ
+
 ---
 
 [<- Previous (Using the API)](./api.md)

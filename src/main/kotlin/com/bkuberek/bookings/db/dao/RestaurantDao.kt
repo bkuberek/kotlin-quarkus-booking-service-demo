@@ -10,10 +10,12 @@ import org.jdbi.v3.core.result.RowView
 import org.jdbi.v3.sqlobject.config.RegisterBeanMapper
 import org.jdbi.v3.sqlobject.customizer.Bind
 import org.jdbi.v3.sqlobject.customizer.BindList
+import org.jdbi.v3.sqlobject.customizer.Define
 import org.jdbi.v3.sqlobject.customizer.DefineNamedBindings
 import org.jdbi.v3.sqlobject.locator.UseClasspathSqlLocator
 import org.jdbi.v3.sqlobject.statement.SqlQuery
 import org.jdbi.v3.sqlobject.statement.UseRowReducer
+import org.jdbi.v3.stringtemplate4.UseStringTemplateEngine
 import java.time.ZonedDateTime
 import java.util.*
 
@@ -64,6 +66,19 @@ interface RestaurantDao {
     @UseRowReducer(RestaurantRowReducer::class)
     fun getByIds(@BindList("ids") ids: List<UUID>): List<RestaurantEntity>
 
+    @SqlQuery
+    @UseClasspathSqlLocator
+    @UseStringTemplateEngine
+    @UseRowReducer(RestaurantAvailabilityRowReducer::class)
+    @RegisterBeanMapper(RestaurantTableAvailability::class)
+    fun getAvailableTables(
+        @Bind("restaurant_id") restaurantId: UUID,
+        @Bind("size") size: Int,
+        @Bind("time_start") timeStart: ZonedDateTime,
+        @Bind("time_stop") timeStop: ZonedDateTime,
+        @Define("time_interval") timeInterval: String
+    ): List<RestaurantTableAvailability>
+
     @SqlQuery(
         """
             SELECT r.id             as r_id,
@@ -101,31 +116,32 @@ interface RestaurantDao {
 
     @SqlQuery
     @UseClasspathSqlLocator
-    @DefineNamedBindings
+    @UseStringTemplateEngine
     @UseRowReducer(RestaurantAvailabilityRowReducer::class)
     @RegisterBeanMapper(RestaurantTableAvailability::class)
     fun findRestaurantsWithAvailableTable(
         @Bind("size") size: Int,
         @Bind("time_start") timeStart: ZonedDateTime,
-        @Bind("time_stop") timeStop: ZonedDateTime
+        @Bind("time_stop") timeStop: ZonedDateTime,
+        @Define("time_interval") timeInterval: String
     ): List<RestaurantTableAvailability>
 
     @SqlQuery
     @UseClasspathSqlLocator
-    @DefineNamedBindings
+    @UseStringTemplateEngine
     @UseRowReducer(RestaurantAvailabilityRowReducer::class)
     @RegisterBeanMapper(RestaurantTableAvailability::class)
     fun findRestaurantsWithAvailableTableAndRestrictions(
         @Bind("size") size: Int,
         @BindList("restrictions") restrictions: List<Endorsement>,
         @Bind("time_start") timeStart: ZonedDateTime,
-        @Bind("time_stop") timeStop: ZonedDateTime
+        @Bind("time_stop") timeStop: ZonedDateTime,
+        @Define("time_interval") timeInterval: String
     ): List<RestaurantTableAvailability>
 
     class RestaurantRowReducer : LinkedHashMapRowReducer<UUID, RestaurantEntity> {
         override fun accumulate(container: MutableMap<UUID, RestaurantEntity>?, rowView: RowView?) {
             if (rowView != null && container != null) {
-
                 val restaurant = container.computeIfAbsent(
                     rowView.getColumn("r_id", UUID::class.java)
                 ) { _ -> rowView.getRow(RestaurantEntity::class.java) }
@@ -137,10 +153,8 @@ interface RestaurantDao {
                 if (rowView.getColumn("e_restaurant_id", UUID::class.java) != null) {
                     restaurant.endorsements.add(rowView.getRow(RestaurantEndorsementEntity::class.java))
                 }
-
             }
         }
-
     }
 
     class RestaurantAvailabilityRowReducer : LinkedHashMapRowReducer<UUID, RestaurantTableAvailability> {
@@ -174,6 +188,5 @@ interface RestaurantDao {
 
             }
         }
-
     }
 }

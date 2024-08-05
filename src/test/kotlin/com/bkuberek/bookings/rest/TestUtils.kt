@@ -1,4 +1,4 @@
-package com.bkuberek.bookings.resources
+package com.bkuberek.bookings.rest
 
 import org.apache.commons.text.StringEscapeUtils
 import org.json.JSONObject

@@ -1,9 +1,9 @@
-package com.bkuberek.bookings.resources.v1
+package com.bkuberek.bookings.graphql.v1.resources
 
 import com.bkuberek.bookings.db.Endorsement
 import com.bkuberek.bookings.db.entities.RestaurantTableAvailability
 import com.bkuberek.bookings.db.repositories.RestaurantRepository
-import com.bkuberek.bookings.resources.v1.models.RestaurantInfo
+import com.bkuberek.bookings.graphql.v1.models.RestaurantInfo
 import io.smallrye.graphql.api.Context
 import jakarta.inject.Inject
 import jakarta.inject.Named
@@ -13,15 +13,13 @@ import org.eclipse.microprofile.graphql.Query
 import java.time.ZonedDateTime
 import java.util.*
 
-public const val RESERVATION_DURATION_MINUTES = 120L
-
 @GraphQLApi
 class RestaurantResource @Inject constructor(
     private val restaurantRepository: RestaurantRepository,
 ) {
     @Query
     @Description("Get a list of all Restaurants")
-    fun allRestaurants(ctx: Context): List<RestaurantInfo> {
+    fun allRestaurants(ctx: Context): Collection<RestaurantInfo> {
         return restaurantRepository.listAll().map { RestaurantInfo(it) }
     }
 
@@ -33,13 +31,13 @@ class RestaurantResource @Inject constructor(
 
     @Query
     @Description("Get a list of Restaurants by ID")
-    fun getRestaurantsById(ctx: Context, @Named("ids") ids: List<UUID>): List<RestaurantInfo> {
+    fun getRestaurantsById(ctx: Context, @Named("ids") ids: List<UUID>): Collection<RestaurantInfo> {
         return restaurantRepository.getByIds(ids).map { RestaurantInfo(it) }
     }
 
     @Query
     @Description("Get a list of Restaurants by name")
-    fun getRestaurantsByName(ctx: Context, @Named("names") names: List<String>): List<RestaurantInfo> {
+    fun getRestaurantsByName(ctx: Context, @Named("names") names: List<String>): Collection<RestaurantInfo> {
         return restaurantRepository.findByName(names).map { RestaurantInfo(it) }
     }
 
@@ -48,8 +46,19 @@ class RestaurantResource @Inject constructor(
     fun findRestaurantsWithEndorsements(
         ctx: Context,
         @Named("endorsements") endorsements: List<Endorsement>
-    ): List<RestaurantInfo> {
+    ): Collection<RestaurantInfo> {
         return restaurantRepository.findRestaurantsByEndorsement(endorsements).map { RestaurantInfo(it) }
+    }
+
+    @Query
+    @Description("Get a list of restaurant tables that are available at time")
+    fun getAvailableTables(
+        ctx: Context,
+        @Named("restaurantId") restaurantId: UUID,
+        @Named("time") time: ZonedDateTime,
+        @Named("size") size: Int?
+    ): RestaurantTableAvailability? {
+        return restaurantRepository.getAvailableTables(restaurantId, time, size)
     }
 
     @Query
@@ -59,20 +68,11 @@ class RestaurantResource @Inject constructor(
         @Named("size") size: Int,
         @Named("endorsements") endorsements: Set<Endorsement>,
         @Named("time") time: ZonedDateTime
-    ): List<RestaurantTableAvailability> {
+    ): Collection<RestaurantTableAvailability> {
         return if (endorsements.isNotEmpty()) {
-            restaurantRepository.findRestaurantsWithAvailableTableAndRestrictions(
-                size,
-                endorsements,
-                time.minusMinutes(RESERVATION_DURATION_MINUTES),
-                time
-            )
+            restaurantRepository.findRestaurantsWithAvailableTableAndRestrictions(size, endorsements, time)
         } else {
-            restaurantRepository.findRestaurantsWithAvailableTable(
-                size,
-                time.minusMinutes(RESERVATION_DURATION_MINUTES),
-                time
-            )
+            restaurantRepository.findRestaurantsWithAvailableTable(size, time)
         }
     }
 }

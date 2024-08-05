@@ -230,6 +230,16 @@ The existing reservation holder for 7:15 will arrive and potentially not have a 
 
 Also check in the future that the table capacity is still available.
 
+```sql
+-- Existing reservation starts within `time_start` and `time_stop`
+(b.reservation_time >= :time_start AND b.reservation_time < :time_stop)
+OR 
+-- Existing reservation + `INTERVAL` is between `time_start` and `time_stop`
+(b.reservation_time + INTERVAL :time_interval >= :time_start AND b.reservation_time + INTERVAL :time_interval < :time_stop)
+```
+
+**Update:** this is the current implementation.
+
 ## Find Available Capacity
 
 Building on top of the previous queries, we can now subtract occupied from total, and we have available tables.
@@ -279,6 +289,66 @@ ORDER BY 1, 2
 | dfe2cab1-6a39-4426-8937-c1d89403e0f0 | 4    | 2        | 1        | 1         |
 | dfe2cab1-6a39-4426-8937-c1d89403e0f0 | 6    | 0        | 0        | 0         |
 
+
+## Find Available Tables at a Restaurant
+
+```postgresql
+WITH venue AS (SELECT r.id,
+                      rt.size,
+                      SUM(rt.quantity) as capacity
+               FROM restaurant AS r
+                        INNER JOIN restaurant_table AS rt ON rt.restaurant_id = r.id
+               WHERE r.id = :restaurant_id
+               GROUP BY 1, 2),
+     endorsing AS (SELECT r.id,
+                          re.endorsement
+                   FROM restaurant AS r
+                            INNER JOIN restaurant_endorsement AS re ON re.restaurant_id = r.id
+                   WHERE r.id = :restaurant_id
+                   GROUP BY 1, 2),
+     booked AS (SELECT b.restaurant_id  AS id,
+                       bt.size,
+                       SUM(bt.quantity) as occupied
+                FROM reservation AS b
+                         INNER JOIN restaurant AS r ON b.restaurant_id = r.id
+                         INNER JOIN reservation_table AS bt ON bt.reservation_id = b.id
+                WHERE r.id = :restaurant_id
+                  AND (
+                    (b.reservation_time >= :time_start AND b.reservation_time < :time_stop)
+                        OR (b.reservation_time + INTERVAL :time_interval >= :time_start AND
+                            b.reservation_time + INTERVAL :time_interval < :time_stop)
+                    )
+                GROUP BY 1, 2)
+
+SELECT sub.id,
+       rr.name,
+       sub.size,
+       sub.total,
+       sub.occupied,
+       sub.available,
+       sub.available_seats,
+       ARRAY_REMOVE(ARRAY_AGG(endorsing.endorsement), NULL) as endorsements
+FROM (SELECT venue.id,
+             venue.size,
+             COALESCE(venue.capacity, 0)                                               AS total,
+             COALESCE(booked.occupied, 0)                                              AS occupied,
+             COALESCE(venue.capacity, 0) - COALESCE(booked.occupied, 0)                AS available,
+             venue.size * (COALESCE(venue.capacity, 0) - COALESCE(booked.occupied, 0)) AS available_seats
+      FROM venue
+               LEFT JOIN booked on (booked.id = venue.id AND booked.size = venue.size)) as sub
+         INNER JOIN restaurant as rr ON rr.id = sub.id
+         LEFT JOIN endorsing on endorsing.id = sub.id
+WHERE sub.available_seats >= :size
+  AND sub.id = :restaurant_id
+GROUP BY 1, 2, 3, 4, 5, 6, 7
+ORDER BY 2, 3
+;
+```
+
+| id                                   | name  | size | total | occupied | available | available\_seats | endorsements |
+|:-------------------------------------|:------|:-----|:------|:---------|:----------|:-----------------|:-------------|
+| 635dc3bd-c515-4d41-848b-bc487bb13810 | Lardo | 2    | 4     | 0        | 4         | 8                | {gluten}     |
+| 635dc3bd-c515-4d41-848b-bc487bb13810 | Lardo | 4    | 2     | 0        | 2         | 8                | {gluten}     |
 
 ---
 

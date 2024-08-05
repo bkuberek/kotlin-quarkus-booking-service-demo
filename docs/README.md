@@ -41,6 +41,7 @@ Quarkus Extensions
 - Kotlin ([guide](https://quarkus.io/guides/kotlin)): Write your services in Kotlin.
 - REST Jackson ([guide](https://quarkus.io/guides/rest#json-serialisation)): Jackson serialization support for Quarkus REST. This extension is not compatible with the quarkus-resteasy extension, or any of the extensions that depend on it.
 - SmallRye GraphQL ([guide](https://quarkus.io/guides/smallrye-graphql)): Create GraphQL Endpoints using the code-first approach from MicroProfile GraphQL.
+- GraphQL Kotlin ([guide](https://opensource.expediagroup.com/graphql-kotlin/docs/schema-generator/writing-schemas/unions)): **Not a quarkus example** (sprint boot), but it is a good reference for implementing graphql on kotlin.
 - JDBC Driver - PostgreSQL ([guide](https://quarkus.io/guides/datasource)): Connect to the PostgreSQL database via JDBC.
 - Quarkus Jdbi ([guide](https://github.com/quarkiverse/quarkus-jdbi)): Makes it possible to use JDBI in native executables.
 - Jdbi ([guide](https://jdbi.org)): Provides convenient, idiomatic, access to relational data in Java.

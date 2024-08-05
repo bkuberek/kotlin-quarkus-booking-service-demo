@@ -1,7 +1,7 @@
-package com.bkuberek.bookings.resources.v1
+package com.bkuberek.bookings.graphql.v1
 
 import com.bkuberek.bookings.db.Endorsement
-import com.bkuberek.bookings.resources.loadGraphqlQueryAsJson
+import com.bkuberek.bookings.rest.loadGraphqlQueryAsJson
 import io.quarkus.test.junit.QuarkusTest
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
@@ -154,6 +154,35 @@ class RestaurantResourceTest {
             .body(Matchers.containsString("Tetetlán"))
             .and()
             .body(Matchers.containsString("Panadería Rosetta"))
+            .log()
+            .all()
+            .extract()
+    }
+
+    @Test
+    fun testGetAvailableTables() {
+        val query = loadGraphqlQueryAsJson(
+            "/graphql/getAvailableTables.gql",
+            mapOf(
+                Pair("restaurantId", "b1e6728c-da7c-4841-bbf3-ba7e97f7e07c"),
+                Pair("size", 2),
+                Pair("time", tomorrow.atTime(20, 0, 0, 0).atZone(ZoneId.systemDefault()))
+            )
+        )
+
+        val response = given()
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+            .body(query)
+            .`when`()
+            .post("/graphql")
+            .then()
+            .statusCode(200)
+            .body("data.restaurant", Matchers.notNullValue())
+            .and()
+            .body("data.restaurant.availableTables.size()", Matchers.equalTo(3))
+            .and()
+            .body(Matchers.containsString("Tetetlán"))
             .log()
             .all()
             .extract()

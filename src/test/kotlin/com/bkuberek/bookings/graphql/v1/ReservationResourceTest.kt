@@ -1,13 +1,13 @@
-package com.bkuberek.bookings.resources.v1
+package com.bkuberek.bookings.graphql.v1
 
-import com.bkuberek.bookings.resources.TransactionalQuarkusTest
-import com.bkuberek.bookings.resources.loadGraphqlQueryAsJson
+import com.bkuberek.bookings.rest.loadGraphqlQueryAsJson
+import io.quarkus.test.junit.QuarkusTest
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.Test
 
-@TransactionalQuarkusTest
+@QuarkusTest
 class ReservationResourceTest {
 
     @Test
@@ -37,11 +37,38 @@ class ReservationResourceTest {
     }
 
     @Test
-    fun testGetReservations() {
+    fun testGetReservationsForUser() {
         val query = loadGraphqlQueryAsJson(
             "/graphql/getReservations.gql",
             mapOf(
                 Pair("name", "Tobias")
+            )
+        )
+
+        given()
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+            .body(query)
+            .`when`()
+            .post("/graphql")
+            .then()
+            .statusCode(200)
+            .body("data.reservations", Matchers.notNullValue())
+            .and()
+            .body(Matchers.containsString("ae5a8791-43dc-4fee-a6c5-5d6be12344ed"))
+            .and()
+            .body(Matchers.containsString("Falling Piano Brewing Co"))
+            .log()
+            .all()
+    }
+
+    @Test
+    fun testGetReservationsForUserAndRestaurant() {
+        val query = loadGraphqlQueryAsJson(
+            "/graphql/getReservations.gql",
+            mapOf(
+                Pair("name", "Tobias"),
+                Pair("restaurantId", "ae5a8791-43dc-4fee-a6c5-5d6be12344ed")
             )
         )
 

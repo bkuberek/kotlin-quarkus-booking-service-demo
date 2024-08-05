@@ -60,11 +60,14 @@ class ReservationTableDelegator {
                 }
                 // Does the group fit in a single table?
                 if (table.size >= standing) {
-                    // we have already reserved this table before, and it still has availability.
+                    // Have we seen this table before?
+                    // if we have already reserved this table before, and it still has availability,
                     // increment reservation quantity rather than creating a new record
                     val reservedTable = reservedTables[table.size]
                     if (reservedTable == null) {
-                        reservation.tables.add(reservationTableEntity(randomUUID, table))
+                        val newTable = reservationTableEntity(randomUUID, table)
+                        reservedTables[table.size] = newTable
+                        reservation.tables.add(newTable)
                     } else {
                         reservedTable.quantity += 1
                     }

@@ -264,8 +264,8 @@ Also check in the future that the table capacity is still available.
 
 ```sql
 -- Existing reservation starts within `time_start` and `time_stop`
-    (b.reservation_time >= :time_start AND b.reservation_time < :time_stop)
-    OR
+(b.reservation_time >= :time_start AND b.reservation_time < :time_stop)
+OR
 -- Existing reservation + `INTERVAL` is between `time_start` and `time_stop`
 (b.reservation_time + INTERVAL :time_interval >= :time_start AND b.reservation_time + INTERVAL :time_interval < :time_stop)
 ```

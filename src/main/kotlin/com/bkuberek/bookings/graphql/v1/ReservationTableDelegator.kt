@@ -49,6 +49,7 @@ class ReservationTableDelegator {
 
             // Keep track of the last table.
             // Assuming our query is right, the last item should be the largest table.
+            var lastSeen: RestaurantTableEntity? = null
             for (table in availableTables) {
                 // Skip if the table supply is depleted
                 if (table.quantity == 0) {
@@ -76,6 +77,7 @@ class ReservationTableDelegator {
                     // We found our table, no need to look any further
                     break
                 }
+                lastSeen = table
             }
 
             // We've seen the whole list, and we didn't find a table.
@@ -86,6 +88,21 @@ class ReservationTableDelegator {
                         .format(this)
                 )
                 throw IllegalArgumentException("Not enough seats")
+            }
+
+            // If we do have enough capacity but the tables are not large enough, we split the group
+            if (standing > 0 && lastSeen != null && lastSeen.quantity > 0) {
+                // seat part of the group at the last largest table
+                val reservedTable = reservedTables[lastSeen.size]
+                if (reservedTable == null) {
+                    val newTable = reservationTableEntity(randomUUID, lastSeen)
+                    reservedTables[lastSeen.size] = newTable
+                    reservation.tables.add(newTable)
+                } else {
+                    reservedTable.quantity += 1
+                }
+                standing -= lastSeen.size
+                lastSeen.quantity -= 1
             }
         }
 

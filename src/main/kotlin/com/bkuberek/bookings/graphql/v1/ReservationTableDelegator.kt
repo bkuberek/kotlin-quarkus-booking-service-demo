@@ -64,14 +64,7 @@ class ReservationTableDelegator {
                     // Have we seen this table before?
                     // if we have already reserved this table before, and it still has availability,
                     // increment reservation quantity rather than creating a new record
-                    val reservedTable = reservedTables[table.size]
-                    if (reservedTable == null) {
-                        val newTable = reservationTableEntity(randomUUID, table)
-                        reservedTables[table.size] = newTable
-                        reservation.tables.add(newTable)
-                    } else {
-                        reservedTable.quantity += 1
-                    }
+                    assignTable(table, reservation, reservedTables, randomUUID)
                     standing -= kotlin.math.min(standing, table.size)
                     table.quantity -= 1
                     // We found our table, no need to look any further
@@ -93,14 +86,7 @@ class ReservationTableDelegator {
             // If we do have enough capacity but the tables are not large enough, we split the group
             if (standing > 0 && lastSeen != null && lastSeen.quantity > 0) {
                 // seat part of the group at the last largest table
-                val reservedTable = reservedTables[lastSeen.size]
-                if (reservedTable == null) {
-                    val newTable = reservationTableEntity(randomUUID, lastSeen)
-                    reservedTables[lastSeen.size] = newTable
-                    reservation.tables.add(newTable)
-                } else {
-                    reservedTable.quantity += 1
-                }
+                assignTable(lastSeen, reservation, reservedTables, randomUUID)
                 standing -= lastSeen.size
                 lastSeen.quantity -= 1
             }
@@ -116,6 +102,22 @@ class ReservationTableDelegator {
         }
 
         return reservation
+    }
+
+    private fun assignTable(
+        table: RestaurantTableEntity,
+        reservation: ReservationEntity,
+        reservedTables: MutableMap<Int, ReservationTableEntity>,
+        randomUUID: UUID
+    ) {
+        val reservedTable = reservedTables[table.size]
+        if (reservedTable == null) {
+            val newTable = reservationTableEntity(randomUUID, table)
+            reservedTables[table.size] = newTable
+            reservation.tables.add(newTable)
+        } else {
+            reservedTable.quantity += 1
+        }
     }
 
     private fun reservationTableEntity(

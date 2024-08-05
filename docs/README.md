@@ -2,7 +2,7 @@
 
 This project is intended for demonstration purposes. It proposes a [Solution](./solution.md) to an example [Problem](./problem.md).
 
-The application is a GraphQL API writen in Kotlin and Quarkus. It uses Postgres for persistence.
+The application is a GraphQL API writen in Kotlin and Quarkus. It uses Postgres for persistency.
 
 To learn more about this project and try it out, continue reading.
 

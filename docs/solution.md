@@ -60,14 +60,14 @@ When creating a reservation, we have already selected the venue based on endorse
 
 ---
 
-## Solution
+# Solution
 
 GraphQL API written in Kotlin using the Quarkus framework and the PostgresSQL database.
 
 The reasoning is that GraphQL offers a lot more flexibility and makes building complex APIs much easier than with REST.
 The Quarkus framework is probably the best available for Java today, and Kotlin being newer and fun, why not?!
 
-Unless the requirements specifically ask for something else, PostgresSQL is a great choice for data persistence.
+Unless the requirements specifically ask for something else, PostgresSQL is a great choice for data persistency.
 Also, this seems to be a problem that requires complex SQL queries in order to aggregate total, occupied and available
 capacity for restaurants.
 
@@ -383,6 +383,87 @@ ORDER BY 2, 3
 | b1e6728c-da7c-4841-bbf3-ba7e97f7e07c | Tetetlán          | 2    | 2     | 0        | 2         | 4                | {gluten}     |
 | b1e6728c-da7c-4841-bbf3-ba7e97f7e07c | Tetetlán          | 4    | 4     | 0        | 4         | 16               | {gluten}     |
 | b1e6728c-da7c-4841-bbf3-ba7e97f7e07c | Tetetlán          | 6    | 1     | 0        | 1         | 6                | {gluten}     |
+
+
+## Implementation
+
+This is a simple Quarkus GraphQL application and most of the code is just wiring things together. 
+A good deal of the logic is written in SQL and there is little complexity in the code.
+However, there is logic in some places, and I'm going to list it below for your convenience.
+
+### Database
+
+We are using liquibase to set up the database. 
+
+[src/main/resources/liquibase](https://github.com/bkuberek/kotlin-quarkus-booking-service-demo/tree/main/src/main/resources/liquibase/)
+
+By default, the database is wiped clean and rebuilt on start.
+To disable the data being reset on startup set the `quarkus.liquibase.clean-at-start` to `false`
+
+```properties
+quarkus.liquibase.clean-at-start=false
+```
+
+### Entry Points
+
+This is app is capable of both REST and GraphQL endpoints, however, no rest endpoints were implemented.
+All endpoints are implemented in GraphQL and there are 2 Resources.
+
+- [`RestaurantResource`](https://github.com/bkuberek/kotlin-quarkus-booking-service-demo/blob/main/src/main/kotlin/com/bkuberek/bookings/graphql/v1/resources/RestaurantResource.kt)
+- [`ReservationResource`](https://github.com/bkuberek/kotlin-quarkus-booking-service-demo/blob/main/src/main/kotlin/com/bkuberek/bookings/graphql/v1/resources/ReservationResource.kt)
+
+For the majority of these endpoints, the Resource calls the Repository, which calls the DAO, which fetches from the database.
+Most of these endpoints just return the output of SQL statements.
+
+```
+Client <- Resource <- Repository <- DAO <- Database
+```
+
+### Input Validation and Processing
+
+The Application will do some work during the Booking of a Reservation. During booking, we need to 
+
+1. validate the input
+   - check the venue exists
+   - check venue hours of operation
+   - check for conflicting reservations
+   - check for available tables for the group size
+2. assign tables to the reservation
+   - Find a table that fits the whole group
+   - If group is larger than the largest table,
+     - Split group into multiple tables
+
+Here are the related files
+
+- [`ReservationValidator`](https://github.com/bkuberek/kotlin-quarkus-booking-service-demo/blob/main/src/main/kotlin/com/bkuberek/bookings/graphql/v1/ReservationValidator.kt)
+- [`ReservationTableDelegator`](https://github.com/bkuberek/kotlin-quarkus-booking-service-demo/blob/main/src/main/kotlin/com/bkuberek/bookings/graphql/v1/ReservationTableDelegator.kt)
+
+
+### Data Access Layer
+
+Originally, I built this using Hibernate-ORM and Panache. I got as far as building all the simple endpoints.
+Finally, I got stuck, unable to implement the SQL I needed to get this working, so I ditched Hibernate and Switched to Jdbi.
+
+We're using the Jdbi SqlObject library, which helps to map database results to objects. Points of interest,
+
+- [`JdbiProvider`](https://github.com/bkuberek/kotlin-quarkus-booking-service-demo/blob/main/src/main/kotlin/com/bkuberek/bookings/db/JdbiProvider.kt)
+- [`RestaurantRepository`](https://github.com/bkuberek/kotlin-quarkus-booking-service-demo/blob/main/src/main/kotlin/com/bkuberek/bookings/db/repositories/RestaurantRepository.kt) <- [`RestaurantDao`](https://github.com/bkuberek/kotlin-quarkus-booking-service-demo/blob/main/src/main/kotlin/com/bkuberek/bookings/db/dao/RestaurantDao.kt)
+- [`ReservationRepository`](https://github.com/bkuberek/kotlin-quarkus-booking-service-demo/blob/main/src/main/kotlin/com/bkuberek/bookings/db/repositories/ReservationRepository.kt) <- [`ReservationDao`](https://github.com/bkuberek/kotlin-quarkus-booking-service-demo/blob/main/src/main/kotlin/com/bkuberek/bookings/db/dao/ReservationDao.kt)
+
+Because I migrated from Hibernate to Jdbi, the entity objects were not refactored enough and could be done better.
+
+
+## Todo
+
+Here are some things that could make this app better
+
+- Add Restaurant Hours of Operation
+- Use the Reactive Pattern
+- Refactor the data objects to use Data Classes
+- Use Templating to minimize SQL duplication
+- Implement List Pagination
+- Benchmark SQL and optimize for performance when applying to larger datasets
+- Run Tests on their own database so not to conflict with local development
 
 ---
 

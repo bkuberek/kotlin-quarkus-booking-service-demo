@@ -406,7 +406,7 @@ quarkus.liquibase.clean-at-start=false
 
 ### Entry Points
 
-This is app is capable of both REST and GraphQL endpoints, however, no rest endpoints were implemented.
+This app is capable of both REST and GraphQL endpoints, however, no rest endpoints were implemented.
 All endpoints are implemented in GraphQL and there are 2 Resources.
 
 - [`RestaurantResource`](https://github.com/bkuberek/kotlin-quarkus-booking-service-demo/blob/main/src/main/kotlin/com/bkuberek/bookings/graphql/v1/resources/RestaurantResource.kt)
@@ -436,7 +436,7 @@ The Application will do some work during the Booking of a Reservation. During bo
 Here are the related files
 
 - [`ReservationValidator`](https://github.com/bkuberek/kotlin-quarkus-booking-service-demo/blob/main/src/main/kotlin/com/bkuberek/bookings/graphql/v1/ReservationValidator.kt)
-- [`ReservationTableDelegator`](https://github.com/bkuberek/kotlin-quarkus-booking-service-demo/blob/main/src/main/kotlin/com/bkuberek/bookings/graphql/v1/ReservationTableDelegator.kt)
+- [`ReservationManager`](https://github.com/bkuberek/kotlin-quarkus-booking-service-demo/blob/main/src/main/kotlin/com/bkuberek/bookings/graphql/v1/ReservationManager.kt)
 
 
 ### Data Access Layer

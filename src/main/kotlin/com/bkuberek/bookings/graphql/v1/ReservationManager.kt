@@ -10,8 +10,8 @@ import org.jboss.logging.Logger
 import java.util.*
 
 @ApplicationScoped
-class ReservationTableDelegator {
-    private val logger = Logger.getLogger(ReservationTableDelegator::class.java)
+class ReservationManager {
+    private val logger = Logger.getLogger(ReservationManager::class.java)
 
     fun assignTables(
         restaurant: RestaurantEntity,

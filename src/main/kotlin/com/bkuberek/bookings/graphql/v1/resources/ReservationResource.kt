@@ -2,7 +2,7 @@ package com.bkuberek.bookings.graphql.v1.resources
 
 import com.bkuberek.bookings.db.repositories.ReservationRepository
 import com.bkuberek.bookings.db.repositories.RestaurantRepository
-import com.bkuberek.bookings.graphql.v1.ReservationTableDelegator
+import com.bkuberek.bookings.graphql.v1.ReservationManager
 import com.bkuberek.bookings.graphql.v1.ReservationValidator
 import com.bkuberek.bookings.graphql.v1.models.*
 import io.smallrye.graphql.api.Context
@@ -17,10 +17,10 @@ import java.util.*
 
 @GraphQLApi
 class ReservationResource @Inject constructor(
-    private val reservationRepository: ReservationRepository,
     private val restaurantRepository: RestaurantRepository,
+    private val reservationRepository: ReservationRepository,
     private val reservationValidator: ReservationValidator,
-    private val reservationTableDelegator: ReservationTableDelegator,
+    private val reservationManager: ReservationManager,
 ) {
     private val logger = Logger.getLogger(ReservationResource::class.java)
 
@@ -86,7 +86,7 @@ class ReservationResource @Inject constructor(
 
         return try {
             val entity =
-                reservationTableDelegator.assignTables(restaurant, available.availableTables, reservationRequest)
+                reservationManager.assignTables(restaurant, available.availableTables, reservationRequest)
             ReservationInfo(reservationRepository.createReservation(entity))
         } catch (e: IllegalArgumentException) {
             ReservationError(

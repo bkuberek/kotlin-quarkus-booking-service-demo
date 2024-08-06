@@ -17,13 +17,11 @@ WITH venue AS (SELECT r.id,
                 FROM reservation AS b
                          INNER JOIN restaurant AS r ON b.restaurant_id = r.id
                          INNER JOIN reservation_table AS bt ON bt.reservation_id = b.id
-                WHERE r.id = :restaurant_id
-                  AND (
-                    (b.reservation_time >= :time_start
-                        AND :time_stop > b.reservation_time)
-                        OR (b.reservation_time + INTERVAL '<time_interval>' >= :time_start
-                        AND :time_stop > b.reservation_time + INTERVAL '<time_interval>')
-                    )
+                WHERE b.is_active = true
+                  AND r.id = :restaurant_id
+                  AND ((b.reservation_time >= :time_start AND :time_stop > b.reservation_time)
+                    OR (b.reservation_time + INTERVAL '<time_interval>' >= :time_start
+                        AND :time_stop > b.reservation_time + INTERVAL '<time_interval>'))
                 GROUP BY 1, 2)
 
 SELECT sub.id,

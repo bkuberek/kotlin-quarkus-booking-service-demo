@@ -1,6 +1,6 @@
 package com.bkuberek.bookings.graphql.v1
 
-import com.bkuberek.bookings.rest.loadGraphqlQueryAsJson
+import com.bkuberek.bookings.loadGraphqlQueryAsJson
 import io.quarkus.test.junit.QuarkusTest
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType

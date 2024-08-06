@@ -450,7 +450,9 @@ We're using the Jdbi SqlObject library, which helps to map database results to o
 - [`RestaurantRepository`](https://github.com/bkuberek/kotlin-quarkus-booking-service-demo/blob/main/src/main/kotlin/com/bkuberek/bookings/db/repositories/RestaurantRepository.kt) <- [`RestaurantDao`](https://github.com/bkuberek/kotlin-quarkus-booking-service-demo/blob/main/src/main/kotlin/com/bkuberek/bookings/db/dao/RestaurantDao.kt)
 - [`ReservationRepository`](https://github.com/bkuberek/kotlin-quarkus-booking-service-demo/blob/main/src/main/kotlin/com/bkuberek/bookings/db/repositories/ReservationRepository.kt) <- [`ReservationDao`](https://github.com/bkuberek/kotlin-quarkus-booking-service-demo/blob/main/src/main/kotlin/com/bkuberek/bookings/db/dao/ReservationDao.kt)
 
-Because I migrated from Hibernate to Jdbi, the entity objects were not refactored enough and could be done better.
+Small SQL scripts are inline in the DAOs, but the larger queries are located at
+
+[src/main/resources/com/bkuberek/bookings/db/dao/RestaurantDao](https://github.com/bkuberek/kotlin-quarkus-booking-service-demo/tree/main/src/main/resources/com/bkuberek/bookings/db/dao/RestaurantDao)
 
 
 ## Todo
